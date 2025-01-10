@@ -1,0 +1,221 @@
+﻿<Window x:Class="PapaSchrumpf.MainWindow"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:local="clr-namespace:PapaSchrumpf"
+		mc:Ignorable="d"
+		Title="PapaSchrumpf 1.0.0" Height="450" Width="800">
+	<Window.Resources>
+		<Style x:Key="LabelStyle" TargetType="{x:Type TextBlock}">
+			<Setter Property="HorizontalAlignment" Value="Left" />
+			<Setter Property="Margin" Value="10,10,0,0" />
+		</Style>
+		<Style x:Key="CheckStyle" TargetType="{x:Type CheckBox}">
+			<Setter Property="HorizontalAlignment" Value="Left" />
+			<Setter Property="Margin" Value="10,10,0,0" />
+		</Style>
+		<Style x:Key="EditStyle" TargetType="{x:Type TextBox}">
+			<Setter Property="HorizontalAlignment" Value="Stretch" />
+			<Setter Property="Margin" Value="2,10,0,0" />
+		</Style>
+		<Style x:Key="UnitStyle" TargetType="{x:Type TextBlock}">
+			<Setter Property="HorizontalAlignment" Value="Left" />
+			<Setter Property="Margin" Value="5,10,0,0" />
+		</Style>
+		<Style x:Key="ExplorerStyle" TargetType="{x:Type Button}">
+			<Setter Property="Background" Value="Transparent" />
+			<Setter Property="BorderThickness" Value="0" />
+			<Setter Property="Height" Value="18" />
+			<Setter Property="Width" Value="24" />
+			<Setter Property="Margin" Value="3,0,3,0" />
+		</Style>
+		<local:Translator x:Key="Translator" />
+	</Window.Resources>
+	<DockPanel>
+		<DockPanel DockPanel.Dock="Bottom">
+			<StackPanel x:Name="ABar" DockPanel.Dock="Top" Margin="2,2,2,2" Orientation="Horizontal" HorizontalAlignment="Right">
+				<Button Margin="10,0,0,0" Content="Run and Clear" Width="110" Click="OnRunAndClear" />
+				<Button Margin="10,0,0,0" Content="Run" Width="70" Click="OnRun" />
+			</StackPanel>
+			<ProgressBar x:Name="PBar" DockPanel.Dock="Bottom" Height="5" Minimum="0" Maximum="100" Foreground="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" />
+		</DockPanel>
+
+		<Grid>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition Width="2" />
+				<ColumnDefinition Width="*" />
+			</Grid.ColumnDefinitions>
+
+			<DockPanel>
+				<StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" FlowDirection="RightToLeft">
+					<Button Style="{StaticResource ExplorerStyle}" VerticalAlignment="Bottom" Content="🗃" Click="OnOpenFile" />
+					<Button Style="{StaticResource ExplorerStyle}" VerticalAlignment="Bottom" Content="❌" Click="OnRemoveFile" />
+				</StackPanel>
+				<ListView x:Name="FileView" ItemsSource="{Binding Files}" AllowDrop="True" DragEnter="OnDragEnterFile" Drop="OnDropFile">
+					<ListView.View>
+						<GridView>
+							<GridViewColumn Header="{Binding Source=#filename, Converter={StaticResource Translator}}"   Width="90" DisplayMemberBinding="{Binding Filename}" />
+							<GridViewColumn Header="{Binding Source=#path, Converter={StaticResource Translator}}"       Width="180" DisplayMemberBinding="{Binding Path}" />
+							<GridViewColumn Header="{Binding Source=#resolution, Converter={StaticResource Translator}}" Width="90" DisplayMemberBinding="{Binding Resolution}" />
+						</GridView>
+					</ListView.View>
+				</ListView>
+			</DockPanel>
+
+			<GridSplitter Grid.Column="1" Width="2" HorizontalAlignment="Stretch" />
+
+			<ScrollViewer Grid.Column="2" HorizontalScrollBarVisibility="Auto">
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="*" MinWidth="300" MaxWidth="700"/>
+					</Grid.ColumnDefinitions>
+
+					<StackPanel>
+						<!--                 RESOLUTION                 -->
+						<GroupBox Margin="2" Header="{Binding Source=#resolution, Converter={StaticResource Translator}}">
+							<Grid Margin="0,0,0,5">
+								<Grid.RowDefinitions>
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="Auto" />
+								</Grid.RowDefinitions>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="*" MaxWidth="300" />
+									<ColumnDefinition Width="48" />
+								</Grid.ColumnDefinitions>
+
+								<TextBlock Grid.Row="0" Grid.Column="0" Style="{StaticResource LabelStyle}" Text="{Binding Source=#width-height, Converter={StaticResource Translator}}" />
+								<Grid Grid.Row="0" Grid.Column="1" Name="Dimensions" Margin="10,10,0,0" HorizontalAlignment="Stretch">
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="*" MinWidth="20" />
+										<ColumnDefinition Width="Auto" />
+										<ColumnDefinition Width="*" MinWidth="20" />
+									</Grid.ColumnDefinitions>
+									<TextBox Grid.Column="0" Text="{Binding Width}" />
+									<TextBlock Grid.Column="1" Margin="10,0,10,0" Text="×" />
+									<TextBox Grid.Column="2" Text="{Binding Height}" />
+								</Grid>
+								<ComboBox Grid.Row="0" Grid.Column="2" SelectedIndex="{Binding Unit}" Margin="3,0,0,0" Height="24">
+									<ComboBoxItem>px</ComboBoxItem>
+									<ComboBoxItem>%</ComboBoxItem>
+								</ComboBox>
+
+								<StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="30,5,0,5" IsEnabled="{Binding IsPixel}">
+									<RadioButton GroupName="Resolutions" Margin="0,2,0,2" IsChecked="{Binding IsA8}">A8 (300 PPI)</RadioButton>
+									<RadioButton GroupName="Resolutions" Margin="0,2,0,2" IsChecked="{Binding IsA7}">A7 (300 PPI)</RadioButton>
+									<RadioButton GroupName="Resolutions" Margin="0,2,0,2" IsChecked="{Binding IsHD}">HD</RadioButton>
+									<RadioButton GroupName="Resolutions" Margin="0,2,0,2" IsChecked="{Binding IsFullHD}">Full HD</RadioButton>
+								</StackPanel>
+
+								<CheckBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource CheckStyle}" IsChecked="{Binding IsAspect}" Content="{Binding Source=#maintain-aspect-ratio, Converter={StaticResource Translator}}" />
+								
+								<StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Margin="30,5,0,5" IsEnabled="{Binding IsAspect}">
+									<RadioButton GroupName="AspectRatio" Margin="0,2,0,2" IsChecked="{Binding AspectMin}" Content="{Binding Source=#minimum, Converter={StaticResource Translator}}" />
+									<RadioButton GroupName="AspectRatio" Margin="0,2,0,2" IsChecked="{Binding AspectMax}" Content="{Binding Source=#maximum, Converter={StaticResource Translator}}" />
+								</StackPanel>
+							</Grid>
+						</GroupBox>
+						<!--                 FILTER                 -->
+						<GroupBox Margin="2" Header="{Binding Source=#filter, Converter={StaticResource Translator}}">
+							<Grid Margin="0,0,0,5">
+								<Grid.RowDefinitions>
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="Auto" />
+								</Grid.RowDefinitions>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="*" MaxWidth="300" />
+									<ColumnDefinition Width="48" />
+								</Grid.ColumnDefinitions>
+
+								<CheckBox Grid.Row="0" Grid.Column="0" Style="{StaticResource CheckStyle}" IsChecked="{Binding IsGrayscale}" Content="{Binding Source=#grayscale, Converter={StaticResource Translator}}" />
+
+								<CheckBox Grid.Row="1" Grid.Column="0" Style="{StaticResource CheckStyle}" IsChecked="{Binding IsHighContrast}" Content="{Binding Source=#high-contrast, Converter={StaticResource Translator}}" />
+								<DockPanel Grid.Row="1" Grid.Column="1" IsEnabled="{Binding IsHighContrast}">
+									<TextBlock DockPanel.Dock="Left" Margin="0,0,10,0" VerticalAlignment="Bottom" Text="{Binding Source=#min, Converter={StaticResource Translator}}" />
+									<TextBlock DockPanel.Dock="Right" Margin="10,0,0,0" VerticalAlignment="Bottom" Text="{Binding Source=#max, Converter={StaticResource Translator}}" />
+									<Slider Minimum="0" Maximum="100" TickPlacement="BottomRight" TickFrequency="10" IsSnapToTickEnabled="True" Value="{Binding Contrast}" />
+								</DockPanel>
+
+								<CheckBox Grid.Row="2" Grid.Column="0" Style="{StaticResource CheckStyle}" IsChecked="{Binding IsSharpening}" Content="{Binding Source=#sharpen, Converter={StaticResource Translator}}" />
+								<DockPanel Grid.Row="2" Grid.Column="1" IsEnabled="{Binding IsSharpening}">
+									<TextBlock DockPanel.Dock="Left" Margin="0,0,10,0" VerticalAlignment="Bottom" Text="{Binding Source=#min, Converter={StaticResource Translator}}" />
+									<TextBlock DockPanel.Dock="Right" Margin="10,0,0,0" VerticalAlignment="Bottom" Text="{Binding Source=#max, Converter={StaticResource Translator}}" />
+									<Slider Minimum="0" Maximum="100" TickPlacement="BottomRight" TickFrequency="10" IsSnapToTickEnabled="True" Value="{Binding Sharpness}" />
+								</DockPanel>
+							</Grid>
+						</GroupBox>
+						<!--                 EXPORT                 -->
+						<GroupBox Margin="2" Header="{Binding Source=#export, Converter={StaticResource Translator}}">
+							<Grid Margin="0,0,0,5">
+								<Grid.RowDefinitions>
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="Auto" />
+								</Grid.RowDefinitions>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="*" MaxWidth="300" />
+									<ColumnDefinition Width="48" />
+								</Grid.ColumnDefinitions>
+
+								<TextBlock Grid.Row="0" Grid.Column="0" Style="{StaticResource LabelStyle}" Text="Quality:" />
+								<DockPanel Grid.Row="0" Grid.Column="1">
+									<TextBlock DockPanel.Dock="Left" Margin="0,0,10,0" VerticalAlignment="Bottom" Text="{Binding Source=#min, Converter={StaticResource Translator}}" />
+									<TextBlock DockPanel.Dock="Right" Margin="10,0,0,0" VerticalAlignment="Bottom" Text="{Binding Source=#max, Converter={StaticResource Translator}}" />
+									<Slider Minimum="0" Maximum="100" TickPlacement="BottomRight" TickFrequency="10" IsSnapToTickEnabled="True" Value="{Binding Quality}" />
+								</DockPanel>
+
+								<CheckBox Grid.Row="1" Grid.Column="0" Style="{StaticResource CheckStyle}" Content="{Binding Source=#folder, Converter={StaticResource Translator}}" IsChecked="{Binding IsCustomFolder}" />
+								<TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource EditStyle}" IsEnabled="{Binding IsCustomFolder}" Text="{Binding CustomFolderPath}" />
+								<Button Grid.Row="1" Grid.Column="2" Style="{StaticResource ExplorerStyle}" VerticalAlignment="Bottom" IsEnabled="{Binding IsCustomFolder}" Content="📁" Click="OnCustomFolder" />
+
+								<CheckBox Grid.Row="2" Grid.Column="0" Style="{StaticResource CheckStyle}" Content="{Binding Source=#filename-extension, Converter={StaticResource Translator}}" IsChecked="{Binding IsCustomExtension}" />
+								<TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource EditStyle}" IsEnabled="{Binding IsCustomExtension}" Text="{Binding CustomExtension}" />
+
+								<StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Margin="30,5,0,5" IsEnabled="{Binding IsCustomExtension}">
+									<RadioButton GroupName="FilenameExtensions" Margin="0,2,0,2" IsChecked="{Binding PrependExtension}" Content="{Binding Source=#prepend, Converter={StaticResource Translator}}" />
+									<RadioButton GroupName="FilenameExtensions" Margin="0,2,0,2" IsChecked="{Binding AppendExtension}" Content="{Binding Source=#append, Converter={StaticResource Translator}}" />
+								</StackPanel>
+
+								<TextBlock Grid.Row="4" Grid.Column="0" Style="{StaticResource LabelStyle}" Text="{Binding Source=#format, Converter={StaticResource Translator}}" />
+								<ComboBox Grid.Row="4" Grid.Column="1" ItemsSource="{Binding Formats}" SelectedItem="{Binding Format}" />
+							</Grid>
+						</GroupBox>
+						<!--                 ADVANCED                 -->
+						<GroupBox Margin="2" Header="{Binding Source=#advanced, Converter={StaticResource Translator}}">
+							<Grid Margin="0,0,0,5">
+								<Grid.RowDefinitions>
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="Auto" />
+								</Grid.RowDefinitions>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="*" MaxWidth="300" />
+									<ColumnDefinition Width="48" />
+								</Grid.ColumnDefinitions>
+
+								<CheckBox Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource CheckStyle}" Content="{Binding Source=#clear-exif-profile, Converter={StaticResource Translator}}" IsChecked="{Binding ClearExif}"/>
+
+								<CheckBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource CheckStyle}" Content="{Binding Source=#copy-creation-date, Converter={StaticResource Translator}}" IsChecked="{Binding CopyCreationDate}"/>
+
+								<CheckBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource CheckStyle}" Content="{Binding Source=#copy-modification-date, Converter={StaticResource Translator}}" IsChecked="{Binding CopyModificationDate}"/>
+								
+								<CheckBox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource CheckStyle}" Content="{Binding Source=#delete-original-files, Converter={StaticResource Translator}}" IsChecked="{Binding DeleteFiles}"/>
+							</Grid>
+						</GroupBox>
+					</StackPanel>
+				</Grid>
+			</ScrollViewer>
+		</Grid>
+	</DockPanel>
+</Window>

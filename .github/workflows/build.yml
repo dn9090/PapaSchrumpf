@@ -1,0 +1,26 @@
+name: Build PapaSchrumpf
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: windows-2022
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+        cache: true
+      env:
+        DOTNET_INSTALL_DIR: ${{ runner.temp }}/.dotnet
+        DOTNET_ROOT: ${{ runner.temp }}/.dotnet
+    - name: Install dependencies
+      run: dotnet restore src\PapaSchrumpf\PapaSchrumpf.csproj
+    - name: Publish
+      run: dotnet publish src\PapaSchrumpf\PapaSchrumpf.csproj
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: PapaSchrumpf x64 (self-contained)
+        path: src\PapaSchrumpf\bin\Release\net9.0-windows\win-x64\publish\PapaSchrumpf.exe
+        if-no-files-found: error
