@@ -35,8 +35,8 @@
 	<DockPanel>
 		<DockPanel DockPanel.Dock="Bottom">
 			<StackPanel x:Name="ABar" DockPanel.Dock="Top" Margin="2,2,2,2" Orientation="Horizontal" HorizontalAlignment="Right">
-				<Button Margin="10,0,0,0" Content="Run and Clear" Width="110" Click="OnRunAndClear" />
-				<Button Margin="10,0,0,0" Content="Run" Width="70" Click="OnRun" />
+				<Button Margin="10,0,0,0" Content="{Binding Source=#run-clear, Converter={StaticResource Translator}}" Width="110" Click="OnRunAndClear" />
+				<Button Margin="10,0,0,0" Content="{Binding Source=#run, Converter={StaticResource Translator}}" Width="70" Click="OnRun" />
 			</StackPanel>
 			<ProgressBar x:Name="PBar" DockPanel.Dock="Bottom" Height="5" Minimum="0" Maximum="100" Foreground="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" />
 		</DockPanel>
@@ -99,7 +99,7 @@
 									<TextBlock Grid.Column="1" Margin="10,0,10,0" Text="×" />
 									<TextBox Grid.Column="2" Text="{Binding Height}" />
 								</Grid>
-								<ComboBox Grid.Row="0" Grid.Column="2" SelectedIndex="{Binding Unit}" Margin="3,0,0,0" Height="24">
+								<ComboBox Grid.Row="0" Grid.Column="2" SelectedIndex="{Binding Unit}" Margin="3,9,0,0" Height="24">
 									<ComboBoxItem>px</ComboBoxItem>
 									<ComboBoxItem>%</ComboBoxItem>
 								</ComboBox>
@@ -107,8 +107,8 @@
 								<StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="30,5,0,5" IsEnabled="{Binding IsPixel}">
 									<RadioButton GroupName="Resolutions" Margin="0,2,0,2" IsChecked="{Binding IsA8}">A8 (300 PPI)</RadioButton>
 									<RadioButton GroupName="Resolutions" Margin="0,2,0,2" IsChecked="{Binding IsA7}">A7 (300 PPI)</RadioButton>
-									<RadioButton GroupName="Resolutions" Margin="0,2,0,2" IsChecked="{Binding IsHD}">HD</RadioButton>
-									<RadioButton GroupName="Resolutions" Margin="0,2,0,2" IsChecked="{Binding IsFullHD}">Full HD</RadioButton>
+									<RadioButton GroupName="Resolutions" Margin="0,2,0,2" IsChecked="{Binding IsHD}">HD (1280 x 720)</RadioButton>
+									<RadioButton GroupName="Resolutions" Margin="0,2,0,2" IsChecked="{Binding IsFullHD}">Full HD (1920 x 1080)</RadioButton>
 								</StackPanel>
 
 								<CheckBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource CheckStyle}" IsChecked="{Binding IsAspect}" Content="{Binding Source=#maintain-aspect-ratio, Converter={StaticResource Translator}}" />
